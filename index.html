@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Element Info</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 2em;
+    }
+
+    p {
+      text-align: center;
+      font-size: 1.1em;
+    }
+
+    .input-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      margin: 5px;
+    }
+
+    input {
+      width: 60%;
+      max-width: 300px;
+    }
+
+    button {
+      background-color: #03dac6;
+      color: #000;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #00c4b4;
+    }
+
+    #output {
+      background-color: #1e1e1e;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+
+    strong {
+      color: #bb86fc;
+    }
+
+    @media screen and (max-width: 600px) {
+      input {
+        width: 80%;
+      }
+
+      #output {
+        font-size: 0.95em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Element Info</h1>
+  <p>Type an atomic symbol (e.g. H, He, Fe, Zn)</p>
+
+  <div class="input-container">
+    <input list="symbols" id="elementInput" placeholder="Enter symbol (e.g. Na)">
+    <datalist id="symbols"></datalist>
+    <button onclick="searchElement()">Search</button>
+  </div>
+
+  <div id="output"></div>
+
+  <script>
+    let elementsData = [];
+
+    fetch('PeriodicTableJSON.json')
+      .then(response => response.json())
+      .then(data => {
+        elementsData = data.elements;
+        populateDatalist();
+      });
+
+    function populateDatalist() {
+      const datalist = document.getElementById('symbols');
+      elementsData.forEach(el => {
+        const option = document.createElement('option');
+        option.value = el.symbol;
+        option.label = `${el.name} (${el.symbol})`;
+        datalist.appendChild(option);
+      });
+    }
+
+    function searchElement() {
+      const input = document.getElementById('elementInput').value.trim().toLowerCase();
+      const element = elementsData.find(el => el.symbol.toLowerCase() === input);
+      const output = document.getElementById('output');
+
+      if (element) {
+        output.innerHTML = `
+          <h2>${element.name} (${element.symbol})</h2>
+          <p><strong>Atomic Number:</strong> ${element.number}</p>
+          <p><strong>Atomic Mass:</strong> ${element.atomic_mass}</p>
+          <p><strong>Electron Configuration:</strong> ${element.electron_configuration}</p>
+          <p><strong>Shells:</strong> ${element.shells?.join(', ') || 'N/A'}</p>
+          <p><strong>Valency:</strong> ${element.valency || 'N/A'}</p>
+          <p><strong>Oxidation States:</strong> ${element.oxidation_states || 'N/A'}</p>
+          <p><strong>Density:</strong> ${element.density || 'N/A'}</p>
+          <p><strong>Melting Point:</strong> ${element.melt || 'N/A'}</p>
+          <p><strong>Boiling Point:</strong> ${element.boil || 'N/A'}</p>
+          <p><strong>Phase:</strong> ${element.phase || 'N/A'}</p>
+          <p><strong>Category:</strong> ${element.category || 'N/A'}</p>
+          <p><strong>Discovered By:</strong> ${element.discovered_by || 'N/A'}</p>
+        `;
+      } else {
+        output.innerHTML = `<p style="color:#ff5252;">Element not found. Try a valid atomic symbol like O, K, Au, etc.</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
